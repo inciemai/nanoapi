@@ -104,11 +104,11 @@ def token_required(f):
     def decorated(*args, **kwargs):
         token = get_token_from_header()
         if not token:
-            return jsonify({'error': 'Token is missing'}), 401
+            return jsonify({'status': 'false', 'error': 'Token is missing'}), 401
         
         payload = verify_token(token)
         if not payload:
-            return jsonify({'error': 'Token is invalid or expired'}), 401
+            return jsonify({'status': 'false', 'error': 'Token is invalid or expired'}), 401
         
         # Add user info to request
         request.current_user = payload
@@ -123,14 +123,14 @@ def admin_required(f):
     def decorated(*args, **kwargs):
         token = get_token_from_header()
         if not token:
-            return jsonify({'error': 'Token is missing'}), 401
+            return jsonify({'status': 'false', 'error': 'Token is missing'}), 401
         
         payload = verify_token(token)
         if not payload:
-            return jsonify({'error': 'Token is invalid or expired'}), 401
+            return jsonify({'status': 'false', 'error': 'Token is invalid or expired'}), 401
         
         if payload.get('role') != 'admin':
-            return jsonify({'error': 'Admin access required'}), 403
+            return jsonify({'status': 'false', 'error': 'Admin access required'}), 403
         
         request.current_user = payload
         return f(*args, **kwargs)
@@ -151,7 +151,7 @@ def register():
         required_fields = ['name', 'email_id', 'phone', 'password', 'confirm_password', 'school']
         for field in required_fields:
             if field not in data or not data[field]:
-                return jsonify({'error': f'{field} is required'}), 400
+                return jsonify({'status': 'false', 'error': f'{field} is required'}), 400
         
         name = data['name']
         email_id = data['email_id'].lower()  # Email ID
@@ -162,20 +162,20 @@ def register():
         
         # Validate password match
         if password != confirm_password:
-            return jsonify({'error': 'Password and confirm password do not match'}), 400
+            return jsonify({'status': 'false', 'error': 'Password and confirm password do not match'}), 400
         
         # Validate email format
         if not EMAIL_REGEX.match(email_id):
-            return jsonify({'error': 'Invalid email format'}), 400
+            return jsonify({'status': 'false', 'error': 'Invalid email format'}), 400
         
         # Validate phone number format
         if not PHONE_REGEX.match(phone):
-            return jsonify({'error': 'Invalid phone number. Must be in format +91-XXXXXXXXXX'}), 400
+            return jsonify({'status': 'false', 'error': 'Invalid phone number. Must be in format +91-XXXXXXXXXX'}), 400
         
         # Check if user already exists
         existing_user = db.users.find_one({'$or': [{'email': email_id}, {'phone': phone}]})
         if existing_user:
-            return jsonify({'error': 'User with this email or phone already exists'}), 409
+            return jsonify({'status': 'false', 'error': 'User with this email or phone already exists'}), 409
         
         # Hash the password
         hashed_password = generate_password_hash(password)
@@ -228,7 +228,7 @@ def login():
         
         # Validate required fields
         if 'username' not in data or 'password' not in data:
-            return jsonify({'error': 'Username/Email and password are required'}), 400
+            return jsonify({'status': 'false', 'error': 'Username/Email and password are required'}), 400
         
         username_or_email = data['username'].lower()
         password = data['password']
@@ -270,11 +270,11 @@ def login():
         })
         
         if not user:
-            return jsonify({'error': 'Invalid username/email or password'}), 401
+            return jsonify({'status': 'false', 'error': 'Invalid username/email or password'}), 401
         
         # Verify password
         if not check_password_hash(user['password'], password):
-            return jsonify({'error': 'Invalid username/email or password'}), 401
+            return jsonify({'status': 'false', 'error': 'Invalid username/email or password'}), 401
         
         # Generate JWT token with all user details
         user_id = str(user['_id'])
@@ -340,25 +340,25 @@ def create_quiz():
         
         # Only require questions array
         if 'questions' not in data or not data['questions']:
-            return jsonify({'error': 'questions array is required'}), 400
+            return jsonify({'status': 'false', 'error': 'questions array is required'}), 400
         
         title = data.get('title', 'Quiz')
         questions = data['questions']
         
         # Validate questions
         if not isinstance(questions, list) or len(questions) == 0:
-            return jsonify({'error': 'Questions must be a non-empty array'}), 400
+            return jsonify({'status': 'false', 'error': 'Questions must be a non-empty array'}), 400
         
         # Validate each question - only require question, options, and correct_answer
         for idx, question in enumerate(questions):
             if 'question' not in question or not question['question']:
-                return jsonify({'error': f'Question {idx + 1} must have question field'}), 400
+                return jsonify({'status': 'false', 'error': f'Question {idx + 1} must have question field'}), 400
             
             if 'options' not in question or not isinstance(question['options'], list) or len(question['options']) < 2:
-                return jsonify({'error': f'Question {idx + 1} must have at least 2 options'}), 400
+                return jsonify({'status': 'false', 'error': f'Question {idx + 1} must have at least 2 options'}), 400
             
             if 'correct_answer' not in question or question['correct_answer'] not in question['options']:
-                return jsonify({'error': f'Question {idx + 1} must have a correct_answer that matches one of the options'}), 400
+                return jsonify({'status': 'false', 'error': f'Question {idx + 1} must have a correct_answer that matches one of the options'}), 400
         
         # Create quiz document with simplified question format
         quiz_doc = {
@@ -429,12 +429,12 @@ def get_quiz(quiz_id):
         
         # Validate ObjectId
         if not ObjectId.is_valid(quiz_id):
-            return jsonify({'error': 'Invalid quiz ID'}), 400
+            return jsonify({'status': 'false', 'error': 'Invalid quiz ID'}), 400
         
         quiz = db.quizzes.find_one({'_id': ObjectId(quiz_id)})
         
         if not quiz:
-            return jsonify({'error': 'Quiz not found'}), 404
+            return jsonify({'status': 'false', 'error': 'Quiz not found'}), 404
         
         quiz['_id'] = str(quiz['_id'])
         # Don't send correct answers to prevent cheating
@@ -456,24 +456,24 @@ def submit_quiz(quiz_id):
         
         # Validate ObjectId
         if not ObjectId.is_valid(quiz_id):
-            return jsonify({'error': 'Invalid quiz ID'}), 400
+            return jsonify({'status': 'false', 'error': 'Invalid quiz ID'}), 400
         
         # Get quiz from database
         quiz = db.quizzes.find_one({'_id': ObjectId(quiz_id)})
         
         if not quiz:
-            return jsonify({'error': 'Quiz not found'}), 404
+            return jsonify({'status': 'false', 'error': 'Quiz not found'}), 404
         
         data = request.get_json()
         
         # Validate answers
         if 'answers' not in data or not isinstance(data['answers'], list):
-            return jsonify({'error': 'Answers must be provided as an array'}), 400
+            return jsonify({'status': 'false', 'error': 'Answers must be provided as an array'}), 400
         
         # Validate and get time field
         time_taken = data.get('time', 0)  # Get time field, default to 0 if not provided
         if not isinstance(time_taken, (int, float)) or time_taken < 0:
-            return jsonify({'error': 'Time must be a positive number'}), 400
+            return jsonify({'status': 'false', 'error': 'Time must be a positive number'}), 400
         
         answers = data['answers']
         user_id = request.current_user.get('user_id')  # Get from token
@@ -537,7 +537,7 @@ def decode_token():
         data = request.get_json()
         
         if 'token' not in data:
-            return jsonify({'error': 'Token is required'}), 400
+            return jsonify({'status': 'false', 'error': 'Token is required'}), 400
         
         token = data['token']
         
@@ -545,7 +545,7 @@ def decode_token():
         payload = verify_token(token)
         
         if not payload:
-            return jsonify({'error': 'Invalid or expired token'}), 401
+            return jsonify({'status': 'false', 'error': 'Invalid or expired token'}), 401
         
         return jsonify({
             'status': 'success',
