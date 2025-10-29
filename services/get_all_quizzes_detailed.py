@@ -1,15 +1,13 @@
 from flask import Blueprint, request, jsonify
 from config import db
-from utils.auth import admin_required
 
 get_all_quizzes_detailed_bp = Blueprint('get_all_quizzes_detailed', __name__)
 
 @get_all_quizzes_detailed_bp.route('/quizzes/all', methods=['GET'])
-@admin_required
 def get_all_quizzes_detailed():
     """
     Get all quizzes with complete information including quiz ID and all details
-    Admin only endpoint - includes correct answers
+    Includes correct answers
     """
     try:
         # Check if database is connected
