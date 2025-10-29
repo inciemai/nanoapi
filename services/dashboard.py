@@ -1,7 +1,8 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 from bson import ObjectId
 from config import db, ADMIN_USERNAME
 from utils.auth import admin_required
+import math
 
 dashboard_bp = Blueprint('dashboard', __name__)
 
@@ -140,6 +141,28 @@ def get_dashboard():
             # Remove average_score from response (was only used for sorting)
             entry.pop('average_score', None)
         
+        # Pagination parameters
+        page = request.args.get('page', default=1, type=int)
+        per_page = request.args.get('limit', default=10, type=int)
+        
+        # Validate pagination parameters
+        if page < 1:
+            page = 1
+        if per_page < 1:
+            per_page = 10
+        if per_page > 100:  # Limit max items per page
+            per_page = 100
+        
+        # Calculate pagination
+        total_items = len(leaderboard_preview)
+        total_pages = math.ceil(total_items / per_page) if total_items > 0 else 1
+        start_index = (page - 1) * per_page
+        end_index = start_index + per_page
+        
+        # Get paginated leaderboard
+        paginated_leaderboard = leaderboard_preview[start_index:end_index]
+        
+        print(f"[Dashboard] Pagination: page={page}, per_page={per_page}, total_items={total_items}, total_pages={total_pages}")
         print("[Dashboard] Dashboard data fetched successfully")
         
         # Prepare response
@@ -155,7 +178,15 @@ def get_dashboard():
                 'total_users': total_users,
                 'users_attended_quiz': users_attended,
                 'users_not_attended': users_not_attended,
-                'leaderboard_preview': leaderboard_preview
+                'leaderboard_preview': paginated_leaderboard,
+                'pagination': {
+                    'total_items': total_items,
+                    'total_pages': total_pages,
+                    'current_page': page,
+                    'per_page': per_page,
+                    'has_next_page': page < total_pages,
+                    'has_prev_page': page > 1
+                }
             }
         }
         

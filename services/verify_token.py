@@ -25,5 +25,5 @@ def verify_token_endpoint():
         }), 200
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'status': False, 'error': str(e)}), 500
 

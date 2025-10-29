@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 import threading
 from config import db
 
@@ -14,9 +15,18 @@ from services.verify_token import verify_token_bp
 from services.decode_token import decode_token_bp
 from services.dashboard import dashboard_bp
 from services.quiz_info import quiz_info_bp
+from services.update_quiz import update_quiz_bp
+from services.delete_quiz import delete_quiz_bp
+from services.delete_question import delete_question_bp
 
 # Create Flask app
 app = Flask(__name__)
+
+# Configure CORS to support all localhost origins
+# Using regex pattern to match localhost and 127.0.0.1 with http/https
+CORS(app, 
+     origins=r"https?://(localhost|127\.0\.0\.1)(:\d+)?",
+     supports_credentials=True)
 
 # Register all blueprints
 app.register_blueprint(login_bp)
@@ -30,6 +40,9 @@ app.register_blueprint(verify_token_bp)
 app.register_blueprint(decode_token_bp)
 app.register_blueprint(dashboard_bp)
 app.register_blueprint(quiz_info_bp)
+app.register_blueprint(update_quiz_bp)
+app.register_blueprint(delete_quiz_bp)
+app.register_blueprint(delete_question_bp)
 
 @app.route('/health', methods=['GET'])
 def health_check():
@@ -46,9 +59,12 @@ def health_check():
             'get_users',
             'verify_token',
             'decode_token',
-            'dashboard',
-            'quiz_info'
-        ],
+        'dashboard',
+        'quiz_info',
+        'update_quiz',
+        'delete_quiz',
+        'delete_question'
+    ],
         'database': 'connected' if db is not None else 'disconnected'
     }, 200
 
@@ -68,6 +84,9 @@ if __name__ == '__main__':
     print("- Decode Token Service")
     print("- Dashboard Service")
     print("- Quiz Info Service")
+    print("- Update Quiz Service")
+    print("- Delete Quiz Service")
+    print("- Delete Question Service")
     print("\nHealth endpoint available at: /health")
     print(f"All services running on single port: 5000")
     print("=" * 60)

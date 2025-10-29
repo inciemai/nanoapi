@@ -14,8 +14,7 @@ def get_quiz_info(user_id):
     """
     try:
         print(f"[Quiz Info] Fetching quiz information for user_id: {user_id}")
-        
-        # Check if database is connected
+
         if db is None:
             print("[Quiz Info] ERROR: Database connection failed")
             return jsonify({

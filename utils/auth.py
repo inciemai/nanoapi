@@ -57,11 +57,11 @@ def token_required(f):
     def decorated(*args, **kwargs):
         token = get_token_from_header()
         if not token:
-            return jsonify({'error': 'Token is missing'}), 401
+            return jsonify({'status': False, 'error': 'Token is missing'}), 401
         
         payload = verify_token(token)
         if not payload:
-            return jsonify({'error': 'Token is invalid or expired'}), 401
+            return jsonify({'status': False, 'error': 'Token is invalid or expired'}), 401
         
         # Add user info to request
         request.current_user = payload
@@ -76,14 +76,14 @@ def admin_required(f):
     def decorated(*args, **kwargs):
         token = get_token_from_header()
         if not token:
-            return jsonify({'error': 'Token is missing'}), 401
+            return jsonify({'status': False, 'error': 'Token is missing'}), 401
         
         payload = verify_token(token)
         if not payload:
-            return jsonify({'error': 'Token is invalid or expired'}), 401
+            return jsonify({'status': False, 'error': 'Token is invalid or expired'}), 401
         
         if payload.get('role') != 'admin':
-            return jsonify({'error': 'Admin access required'}), 403
+            return jsonify({'status': False, 'error': 'Admin access required'}), 403
         
         request.current_user = payload
         return f(*args, **kwargs)

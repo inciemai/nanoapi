@@ -8,7 +8,7 @@ def get_quizzes():
     try:
         # Check if database is connected
         if db is None:
-            return jsonify({'error': 'Database connection failed'}), 500
+            return jsonify({'status': False, 'error': 'Database connection failed'}), 500
         
         # Get optional query parameters
         created_by = request.args.get('created_by')
@@ -31,5 +31,5 @@ def get_quizzes():
             'total': len(quiz_list)
         }), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'status': False, 'error': str(e)}), 500
 

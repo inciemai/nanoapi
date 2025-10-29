@@ -11,7 +11,7 @@ def decode_token():
         data = request.get_json()
         
         if 'token' not in data:
-            return jsonify({'error': 'Token is required'}), 400
+            return jsonify({'status': False, 'error': 'Token is required'}), 400
         
         token = data['token']
         
@@ -19,7 +19,7 @@ def decode_token():
         payload = verify_token(token)
         
         if not payload:
-            return jsonify({'error': 'Invalid or expired token'}), 401
+            return jsonify({'status': False, 'error': 'Invalid or expired token'}), 401
         
         return jsonify({
             'status': 'success',
@@ -37,5 +37,5 @@ def decode_token():
         }), 200
         
     except Exception as e:
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'status': False, 'error': str(e)}), 500
 
