@@ -67,11 +67,7 @@ A Flask-based web application for creating and taking quizzes with user authenti
 - **POST** `/login`
 - **Body**:
   ```json
-  {
-    "username": "admin",
-    "password": "admin123"
-  }
-  ```
+
 - **Response**: JWT token and user information
 
 ### Quiz Management (Admin Only)
