@@ -12,6 +12,8 @@ from services.create_quiz import create_quiz_bp
 from services.get_users import get_users_bp
 from services.verify_token import verify_token_bp
 from services.decode_token import decode_token_bp
+from services.dashboard import dashboard_bp
+from services.quiz_info import quiz_info_bp
 
 # Create Flask app
 app = Flask(__name__)
@@ -26,6 +28,8 @@ app.register_blueprint(create_quiz_bp)
 app.register_blueprint(get_users_bp)
 app.register_blueprint(verify_token_bp)
 app.register_blueprint(decode_token_bp)
+app.register_blueprint(dashboard_bp)
+app.register_blueprint(quiz_info_bp)
 
 @app.route('/health', methods=['GET'])
 def health_check():
@@ -41,7 +45,9 @@ def health_check():
             'create_quiz',
             'get_users',
             'verify_token',
-            'decode_token'
+            'decode_token',
+            'dashboard',
+            'quiz_info'
         ],
         'database': 'connected' if db is not None else 'disconnected'
     }, 200
@@ -60,6 +66,8 @@ if __name__ == '__main__':
     print("- Get Users Service")
     print("- Verify Token Service")
     print("- Decode Token Service")
+    print("- Dashboard Service")
+    print("- Quiz Info Service")
     print("\nHealth endpoint available at: /health")
     print(f"All services running on single port: 5000")
     print("=" * 60)
