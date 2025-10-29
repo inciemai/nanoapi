@@ -1,6 +1,4 @@
 from flask import Blueprint, request, jsonify
-from pymongo.errors import PyMongoError
-import re
 from werkzeug.security import check_password_hash
 from config import db, ADMIN_USERNAME, ADMIN_PASSWORD
 from utils.auth import generate_token
@@ -17,14 +15,18 @@ def login():
         data = request.get_json()
         
         # Validate required fields
-        if 'username' not in data or 'password' not in data:
-            return jsonify({'status': False, 'error': 'Username/Email and password are required'}), 400
+        if 'email' not in data or 'password' not in data:
+            return jsonify({'status': False, 'error': 'Email and password are required'}), 400
         
-        username_or_email = data['username'].lower()
+        email = data['email'].lower()
         password = data['password']
         
-        # Auto-login for admin user (username match only)
-        if username_or_email == ADMIN_USERNAME.lower():
+        # Check for admin login first (allows username instead of email)
+        if email == ADMIN_USERNAME.lower():
+            # Verify admin password
+            if password != ADMIN_PASSWORD:
+                return jsonify({'status': False, 'error': 'Invalid username or password'}), 401
+            
             # Generate admin token
             user_id = 'admin'
             user_role = 'admin'
@@ -51,20 +53,19 @@ def login():
                 }
             }), 200
         
-        # Find user by username, email, or name (case-insensitive)
-        user = db.users.find_one({
-            '$or': [
-                {'email': username_or_email}, 
-                {'name': {'$regex': f'^{re.escape(username_or_email)}$', '$options': 'i'}}
-            ]
-        })
+        # Basic email validation for regular users
+        if '@' not in email:
+            return jsonify({'status': False, 'error': 'Invalid email format'}), 400
+        
+        # Find user by email only (case-insensitive)
+        user = db.users.find_one({'email': email})
         
         if not user:
-            return jsonify({'status': False, 'error': 'Invalid username/email or password'}), 401
+            return jsonify({'status': False, 'error': 'Invalid email or password'}), 401
         
         # Verify password
         if not check_password_hash(user['password'], password):
-            return jsonify({'status': False, 'error': 'Invalid username/email or password'}), 401
+            return jsonify({'status': False, 'error': 'Invalid email or password'}), 401
         
         # Generate JWT token with all user details
         user_id = str(user['_id'])
@@ -86,7 +87,7 @@ def login():
             'user': {
                 'user_id': user_id,
                 'name': user['name'],
-                'username': user['email'],  # email field contains username/email
+                'username': user['email'],  
                 'phone': user['phone'],
                 'school': user.get('school', ''),
                 'role': user_role

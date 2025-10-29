@@ -11,6 +11,7 @@ from services.submit_quiz import submit_quiz_bp
 from services.get_quizzes import get_quizzes_bp
 from services.create_quiz import create_quiz_bp
 from services.get_users import get_users_bp
+from services.get_user import get_user_bp
 from services.verify_token import verify_token_bp
 from services.decode_token import decode_token_bp
 from services.dashboard import dashboard_bp
@@ -18,6 +19,7 @@ from services.quiz_info import quiz_info_bp
 from services.update_quiz import update_quiz_bp
 from services.delete_quiz import delete_quiz_bp
 from services.delete_question import delete_question_bp
+from services.get_all_quizzes_detailed import get_all_quizzes_detailed_bp
 
 # Create Flask app
 app = Flask(__name__)
@@ -36,6 +38,7 @@ app.register_blueprint(submit_quiz_bp)
 app.register_blueprint(get_quizzes_bp)
 app.register_blueprint(create_quiz_bp)
 app.register_blueprint(get_users_bp)
+app.register_blueprint(get_user_bp)
 app.register_blueprint(verify_token_bp)
 app.register_blueprint(decode_token_bp)
 app.register_blueprint(dashboard_bp)
@@ -43,6 +46,7 @@ app.register_blueprint(quiz_info_bp)
 app.register_blueprint(update_quiz_bp)
 app.register_blueprint(delete_quiz_bp)
 app.register_blueprint(delete_question_bp)
+app.register_blueprint(get_all_quizzes_detailed_bp)
 
 @app.route('/health', methods=['GET'])
 def health_check():
@@ -57,13 +61,15 @@ def health_check():
             'get_quizzes',
             'create_quiz',
             'get_users',
+            'get_user',
             'verify_token',
             'decode_token',
         'dashboard',
         'quiz_info',
         'update_quiz',
         'delete_quiz',
-        'delete_question'
+        'delete_question',
+        'get_all_quizzes_detailed'
     ],
         'database': 'connected' if db is not None else 'disconnected'
     }, 200
@@ -80,6 +86,7 @@ if __name__ == '__main__':
     print("- Get Quizzes Service")
     print("- Create Quiz Service")
     print("- Get Users Service")
+    print("- Get User Service")
     print("- Verify Token Service")
     print("- Decode Token Service")
     print("- Dashboard Service")
@@ -87,6 +94,7 @@ if __name__ == '__main__':
     print("- Update Quiz Service")
     print("- Delete Quiz Service")
     print("- Delete Question Service")
+    print("- Get All Quizzes Detailed Service")
     print("\nHealth endpoint available at: /health")
     print(f"All services running on single port: 5000")
     print("=" * 60)

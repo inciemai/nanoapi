@@ -1,6 +1,6 @@
 from flask import Blueprint, request, jsonify
 from werkzeug.security import generate_password_hash
-from config import db, EMAIL_REGEX, PHONE_REGEX, ADMIN_USERNAME, ADMIN_PASSWORD
+from config import db, PHONE_REGEX, ADMIN_USERNAME, ADMIN_PASSWORD
 
 register_bp = Blueprint('register', __name__)
 
@@ -30,9 +30,9 @@ def register():
         if password != confirm_password:
             return jsonify({'status': False, 'error': 'Password and confirm password do not match'}), 400
         
-        # Validate email format
-        if not EMAIL_REGEX.match(email_id):
-            return jsonify({'status': False, 'error': 'Invalid email format'}), 400
+        # Basic email check - only ensure it contains @ symbol (allow all email formats)
+        if '@' not in email_id:
+            return jsonify({'status': False, 'error': 'Email must contain @ symbol'}), 400
         
         # Validate phone number format
         if not PHONE_REGEX.match(phone):
