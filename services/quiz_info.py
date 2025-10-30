@@ -102,12 +102,26 @@ def get_quiz_info(user_id):
                 'questions': []
             }
             
+            # Build a lookup for question text/options from the quiz document
+            question_lookup = {}
+            if quiz_details and isinstance(quiz_details.get('questions'), list):
+                for q in quiz_details['questions']:
+                    qid = q.get('question_id')
+                    if qid:
+                        question_lookup[qid] = {
+                            'question': q.get('question', ''),
+                            'options': q.get('options', [])
+                        }
+            
             # Add questions with user's answers
             result_questions = result.get('questions', [])
             for question_data in result_questions:
+                qid = question_data.get('question_id', '')
+                from_quiz = question_lookup.get(qid, {})
                 question_info = {
-                    'question_id': question_data.get('question_id', ''),
-                    'options': question_data.get('options', []),
+                    'question_id': qid,
+                    'question': from_quiz.get('question', ''),
+                    'options': question_data.get('options', from_quiz.get('options', [])),
                     'correct_answer': question_data.get('correct_answer', ''),
                     'user_answer': question_data.get('user_answer', ''),
                     'is_correct': question_data.get('is_correct', False)
