@@ -66,6 +66,9 @@ def get_dashboard():
         aggregated_results = list(db.quiz_results.aggregate(pipeline))
         print(f"[Dashboard] Found {len(aggregated_results)} users with quiz results")
         
+        # Compute total attempted questions across all quiz results
+        total_attempted_questions = sum(r.get('total_questions', 0) for r in aggregated_results)
+        
         # Get all users for matching user details
         print("[Dashboard] Fetching all users...")
         all_users_dict = {}
@@ -141,28 +144,15 @@ def get_dashboard():
             # Remove average_score from response (was only used for sorting)
             entry.pop('average_score', None)
         
-        # Pagination parameters
-        page = request.args.get('page', default=1, type=int)
-        per_page = request.args.get('limit', default=10, type=int)
+        # Limit to top 10 only
+        top_leaderboard = leaderboard_preview[:10]
+        total_items = len(top_leaderboard)
+        total_pages = 1
+        page = 1
+        per_page = 10
+        paginated_leaderboard = top_leaderboard
         
-        # Validate pagination parameters
-        if page < 1:
-            page = 1
-        if per_page < 1:
-            per_page = 10
-        if per_page > 100:  # Limit max items per page
-            per_page = 100
-        
-        # Calculate pagination
-        total_items = len(leaderboard_preview)
-        total_pages = math.ceil(total_items / per_page) if total_items > 0 else 1
-        start_index = (page - 1) * per_page
-        end_index = start_index + per_page
-        
-        # Get paginated leaderboard
-        paginated_leaderboard = leaderboard_preview[start_index:end_index]
-        
-        print(f"[Dashboard] Pagination: page={page}, per_page={per_page}, total_items={total_items}, total_pages={total_pages}")
+        print(f"[Dashboard] Top leaderboard limited to {total_items} entries")
         print("[Dashboard] Dashboard data fetched successfully")
         
         # Prepare response
@@ -178,14 +168,15 @@ def get_dashboard():
                 'total_users': total_users,
                 'users_attended_quiz': users_attended,
                 'users_not_attended': users_not_attended,
+                'total_attempted_questions': total_attempted_questions,
                 'leaderboard_preview': paginated_leaderboard,
                 'pagination': {
                     'total_items': total_items,
                     'total_pages': total_pages,
                     'current_page': page,
                     'per_page': per_page,
-                    'has_next_page': page < total_pages,
-                    'has_prev_page': page > 1
+                'has_next_page': False,
+                'has_prev_page': False
                 }
             }
         }
