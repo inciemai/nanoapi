@@ -20,6 +20,7 @@ from services.update_quiz import update_quiz_bp
 from services.delete_quiz import delete_quiz_bp
 from services.delete_question import delete_question_bp
 from services.get_all_quizzes_detailed import get_all_quizzes_detailed_bp
+from services.leaderboard import leaderboard_bp
 
 # Create Flask app
 app = Flask(__name__)
@@ -47,6 +48,7 @@ app.register_blueprint(update_quiz_bp)
 app.register_blueprint(delete_quiz_bp)
 app.register_blueprint(delete_question_bp)
 app.register_blueprint(get_all_quizzes_detailed_bp)
+app.register_blueprint(leaderboard_bp)
 
 @app.route('/health', methods=['GET'])
 def health_check():
@@ -70,6 +72,7 @@ def health_check():
         'delete_quiz',
         'delete_question',
         'get_all_quizzes_detailed'
+        , 'leaderboard'
     ],
         'database': 'connected' if db is not None else 'disconnected'
     }, 200
