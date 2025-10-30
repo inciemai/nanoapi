@@ -14,9 +14,29 @@ def get_users():
             print("[Get Users] ERROR: Database connection failed")
             return jsonify({'status': False, 'error': 'Database connection failed'}), 500
         
-        # Pagination parameters
-        page = request.args.get('page', default=1, type=int)
-        per_page = request.args.get('limit', default=10, type=int)
+        # Pagination parameters (support both named and positional query params)
+        page = request.args.get('page', default=None, type=int)
+        per_page = request.args.get('limit', default=None, type=int)
+
+        # Fallback: handle positional style like /users?2&10 (non-standard but requested)
+        if page is None or per_page is None:
+            # If named params missing, try to infer from unnamed keys
+            if ('page' not in request.args) and ('limit' not in request.args) and len(request.args) > 0:
+                numeric_keys = []
+                for k in request.args.keys():
+                    # keys may be like '2' or '10' with empty values
+                    if isinstance(k, str) and k.isdigit():
+                        numeric_keys.append(int(k))
+                if len(numeric_keys) >= 1 and page is None:
+                    page = numeric_keys[0]
+                if len(numeric_keys) >= 2 and per_page is None:
+                    per_page = numeric_keys[1]
+
+        # Defaults if still None
+        if page is None:
+            page = 1
+        if per_page is None:
+            per_page = 10
         
         # Validate pagination parameters
         if page < 1:
