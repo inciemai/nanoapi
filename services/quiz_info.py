@@ -1,12 +1,12 @@
 from flask import Blueprint, jsonify
 from bson import ObjectId
 from config import db
-from utils.auth import admin_required
+from utils.auth import token_required
 
 quiz_info_bp = Blueprint('quiz_info', __name__)
 
 @quiz_info_bp.route('/quiz_info/<user_id>', methods=['GET'])
-@admin_required
+@token_required
 def get_quiz_info(user_id):
     """
     Get all quiz information for a specific user
