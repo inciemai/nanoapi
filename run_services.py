@@ -25,10 +25,13 @@ from services.leaderboard import leaderboard_bp
 # Create Flask app
 app = Flask(__name__)
 
-# Configure CORS to support all localhost origins
+# Configure CORS to support all localhost origins and domain
 # Using regex pattern to match localhost and 127.0.0.1 with http/https
 CORS(app, 
-     origins=r"https?://(localhost|127\.0\.0\.1)(:\d+)?",
+     origins=[
+         r"https?://(localhost|127\.0\.0\.1)(:\d+)?",
+         r"https://steamkarivalclient-d73s\.vercel\.app"
+     ],
      supports_credentials=True)
 
 # Register all blueprints
