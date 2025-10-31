@@ -10,7 +10,7 @@ def get_all_quizzes_detailed():
     Includes correct answers
     """
     try:
-        # Check if database is connected
+
         if db is None:
             return jsonify({'status': False, 'error': 'Database connection failed'}), 500
         

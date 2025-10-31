@@ -174,3 +174,23 @@ The API returns appropriate HTTP status codes:
 - `409`: Conflict
 - `500`: Internal Server Error
 
+## Documentation
+
+- Project Structure: see `docs/PROJECT_STRUCTURE.md`
+- Full Project Documentation (no code): see `docs/Project_Documentation.md`
+- API Reference: see `docs/api.md`
+
+### Export to PDF (Windows-friendly, no code execution by this file)
+
+- Option A: Use your editor's Print/Export
+  - Open any `.md` in a Markdown preview (Cursor/VS Code)
+  - Print → "Save as PDF"
+
+- Option B: Generate a single combined PDF with Pandoc
+  - Install Pandoc from `https://pandoc.org/installing.html`
+  - From the project root in PowerShell:
+    - `pandoc docs/Project_Documentation.md docs/api.md -o docs/NanoAPI-Quiz-Documentation.pdf`
+
+- Option C: Browser Print to PDF
+  - View the Markdown on GitHub or a local preview, then Print → Save as PDF
+

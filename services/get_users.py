@@ -60,7 +60,13 @@ def get_users():
         users = db.users.find({}, {'password': 0}).skip(skip).limit(per_page)
         user_list = []
         for user in users:
-            user['_id'] = str(user['_id'])
+            user_id = str(user['_id'])
+            user['_id'] = user_id
+            
+            # Check if user has attempted any quiz
+            has_attempted = db.quiz_results.count_documents({'user_id': user_id}) > 0
+            user['is_quiz_attempted'] = has_attempted
+            
             user_list.append(user)
         
         print(f"[Get Users] Returning {len(user_list)} users")

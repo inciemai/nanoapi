@@ -10,7 +10,7 @@ update_quiz_bp = Blueprint('update_quiz', __name__)
 @admin_required
 def update_quiz(quiz_id):
     try:
-        # Check if database is connected
+
         if db is None:
             return jsonify({'status': False, 'error': 'Database connection failed'}), 500
         
