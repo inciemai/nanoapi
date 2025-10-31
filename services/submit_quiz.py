@@ -33,6 +33,10 @@ def submit_quiz(quiz_id):
         questions_data = data['questions']
         user_id = request.current_user.get('user_id')  # Get from token
         
+        # Get username from database
+        user = db.users.find_one({'_id': ObjectId(user_id)})
+        username = user.get('name', '') if user else ''
+        
         # Create a dictionary to map question_id to user answers and calculate total time
         user_answers_dict = {}
         time_taken = 0
@@ -87,6 +91,7 @@ def submit_quiz(quiz_id):
         result_doc = {
             'quiz_id': quiz_id,
             'user_id': user_id,
+            'username': username,
             'correct_answers': correct_count,
             'total_questions': total_questions,
             'time_taken': time_taken,
