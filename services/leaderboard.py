@@ -70,7 +70,7 @@ def get_leaderboard():
         for user in db.users.find():
             all_users_dict[str(user['_id'])] = user
 
-        # Build full leaderboard entries (include users with no attempts)
+        # Build leaderboard entries (only users who have attempted quizzes)
         leaderboard_entries = []
         processed_user_ids = set()
 
@@ -104,19 +104,8 @@ def get_leaderboard():
                     'average_score': round(result.get('average_score', 0.0), 2)
                 })
 
-        for uid, user in all_users_dict.items():
-            if uid not in processed_user_ids:
-                leaderboard_entries.append({
-                    'user_id': uid,
-                    'name': user.get('name', 'Unknown'),
-                    'attempted_questions': 0,
-                    'time_taken': 0.0,
-                    'email': user.get('email', ''),
-                    'phone': user.get('phone', ''),
-                    'total_correct': 0,
-                    'total_questions': 0,
-                    'average_score': 0.0
-                })
+        # Only include users who have attempted quizzes (already in processed_user_ids)
+        # Users without quiz attempts are excluded from leaderboard
 
         # Sort: higher average score first, then lower time_taken
         leaderboard_entries.sort(key=lambda x: (-x['average_score'], x['time_taken']))

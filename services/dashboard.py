@@ -119,22 +119,9 @@ def get_dashboard():
                 })
                 print(f"[Dashboard] Added {'admin' if is_admin else 'unknown'} user: {user_id_key} - {result['total_correct']}/{result['total_questions']}")
         
-        # Add users who haven't taken any quiz yet
-        for user_id_str, user in all_users_dict.items():
-            if user_id_str not in processed_user_ids:
-                leaderboard_preview.append({
-                    'user_id': user_id_str,
-                    'name': user.get('name', 'Unknown'),
-                    'attempted_questions': 0,
-                    'time_taken': 0.0,
-                    'email': user.get('email', ''),
-                    'phone': user.get('phone', ''),
-                    'total_correct': 0,
-                    'total_questions': 0,
-                    'average_score': 0.0  # For sorting only
-                })
-                print(f"[Dashboard] Added user without quiz results: {user.get('name', 'Unknown')}")
-        
+        # Only include users who have attempted quizzes (already in processed_user_ids)
+        # Users without quiz attempts are excluded from leaderboard
+
         # Sort by average_score descending, then by time_taken ascending (less time is better)
         leaderboard_preview.sort(key=lambda x: (-x['average_score'], x['time_taken']))
         
